@@ -12,12 +12,15 @@ spec:
 
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: test-app
   namespace: go-k8s-test-app
 spec:
+  serviceName: test-app-headless-svc
   replicas: 1
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       app: test-app
@@ -26,26 +29,31 @@ spec:
       labels:
         app: test-app
     spec:
+      hostname: test-app-0
       serviceAccountName: go-k8s-test-app-sa
+      terminationGracePeriodSeconds: 10
       containers:
       - name: go-k8s-test-app
         image: localhost:32000/go-k8s-test-app:registry
         imagePullPolicy: Always
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: go-k8s-test-app-svc
-  namespace: go-k8s-test-app
-spec:
-  ports:
-  - port: 9001
-    targetPort: 9001
-    protocol: TCP
-  selector:
-    app: test-app
-  type: ClusterIP
+        ports:
+        - containerPort: 9001
+        volumeMounts:
+        - name: test-app-data
+          mountPath: /app/db
+      volumes:
+      - name: test-app-data
+        persistentVolumeClaim:
+          claimName: test-app-data-test-app-0
+  volumeClaimTemplates:
+  - metadata:
+      name: test-app-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
 
 ---
 apiVersion: v1

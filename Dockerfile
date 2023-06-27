@@ -1,7 +1,7 @@
 # Build stage for dqlite lib and go app
 FROM ubuntu:latest AS build
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV TZ=Europe/London
+ENV TZ=UTC
 ENV LD_LIBRARY_PATH=/usr/local/lib
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/go
@@ -31,10 +31,11 @@ RUN mkdir lib; ldd /app/test-app | awk '/=>/ {print $(NF-1)}' | xargs -I {} cp -
 
 # Final stage
 FROM ubuntu:latest
-ARG DEBIAN_FRONTEND="noninteractive"
-ENV TZ=Europe/London
+ENV TZ=UTC
 ENV LD_LIBRARY_PATH=/usr/local/lib
 WORKDIR /app
+RUN mkdir /app/db
+VOLUME /app/db
 COPY --from=build /app/lib/ /usr/local/lib/
 COPY --from=build /usr/local/bin/dqlite /usr/local/bin/
 COPY --from=build /app/test-app .

@@ -1,12 +1,18 @@
 # dqlite distributed cluster implementation example
 
+Built with https://github.com/canonical/go-dqlite
+
+This example works inside single k8s cluster only.
+
+Start with 1 replica, but if you need HA dqlite cluster, scale up to 3 replicas at least.
+
 ## test-app.go
 
 Go application example with demonstration dqlite work
 
 ## test-deployment.yml
 
-Kubernetes Deployment, Namespace, Service, ServiceAccount, Role, RoleBinding
+Kubernetes StatefulSet, Namespace, ServiceAccount, Role, RoleBinding
 
 ## Dockerfile
 
@@ -55,7 +61,7 @@ root@list-svc-5995f94cd7-zqr6d:/app# cat db/cluster.yaml
 ```
 
 ```bash
-root@list-svc-5995f94cd7-zqr6d:/app# dqlite -s go-k8s-test-app-svc:9001 test-db
+root@list-svc-5995f94cd7-zqr6d:/app# dqlite -s 10.1.204.67:9001 test-db
 dqlite> select * from model;
 test-key|test value
 dqlite> insert into model(key,value) values("new-key","new value");
