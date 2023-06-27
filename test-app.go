@@ -63,7 +63,6 @@ func main() {
 	podName := os.Getenv("HOSTNAME")
 	podIP := waitForPodIP(clientset, podName, namespace, 5*time.Second)
 	address := podIP + ":9001" // Unique node address
-	// oldAddress := ""
 	log.Println(podName, podIP)
 
 	// Get app label from self pod
